@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: product_db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306" # Expose port for local inspection if needed
+    networks:
+      - app-network
+
+  fastapi-service:
+    build: ./fastapi-service
+    container_name: fastapi_service
+    restart: always
+    environment:
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=product_db
+      - MYSQL_HOST=db # Service name of the MySQL container
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  telegram-bot:
+    build: ./telegram-bot
+    container_name: telegram_bot
+    restart: always
+    environment:
+      # IMPORTANT: Replace with your actual token
+      TELEGRAM_BOT_TOKEN: "8406701523:AAHHg5NdasHeqrRfLLipiRRJDDMFB0kLdfc"
+      FASTAPI_SERVICE_URL: "http://fastapi-service:8000/products/"
+    depends_on:
+      - fastapi-service
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql_data:
