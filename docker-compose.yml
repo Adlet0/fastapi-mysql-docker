@@ -40,7 +40,7 @@ services:
     restart: always
     environment:
       # IMPORTANT: Replace with your actual token
-      TELEGRAM_BOT_TOKEN: "8406701523:AAHHg5NdasHeqrRfLLipiRRJDDMFB0kLdfc"
+      TELEGRAM_BOT_TOKEN: "your token id "
       FASTAPI_SERVICE_URL: "http://fastapi-service:8000/products/"
     depends_on:
       - fastapi-service
